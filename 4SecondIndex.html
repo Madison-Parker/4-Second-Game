@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>4 Second Game</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+        rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3"
+        crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+          crossOrigin="anonymous">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+
+  <style type="text/css">
+    #title {
+      text-align: center;
+    }
+    #button {
+      height: 75px;
+      width: 110px;
+      font-size: x-large;
+      font-weight: bold;
+    }
+    #results {
+      font-weight: bold;
+    }
+    #AttSum , #AttResults {
+      background-color: #cccccc;
+    }
+
+    #AttResultsText {
+      display: none;
+    }
+
+    #table {
+      display: none;
+    }
+  </style>
+
+</head>
+<body>
+  <div class="container-fluid">
+    <div id="header" class="row">
+      <div id="title" class="col-md-12">
+        <h1>Welcome to the 4 Second Game!</h1>
+      </div>
+    </div>
+    <div class="row" align="center">
+      <h4>How good is your internal clock?</h4>
+    </div>
+    <br><br><br>
+    <div class="row" align="center">
+      <h6>Try to click the button after exactly 4 seconds has passed.</h6>
+    </div>
+  <br><br><br>
+    <div id="timer" class="row">
+      <div class = "col-md-12" align="center">
+        <button id="button" class="btn btn-primary" onclick="buttonClick()">Start</button>
+        <br><br>
+        <div id="results">
+          <p> </p>
+        </div>
+      </div>
+    </div>
+    <br><br><br>
+    <div id = "summary" class = "row">
+      <div class = "col-md-6" align = "center">
+        <button id = "AttSum" class="btn btn-info" onclick="attemptSummary()">See Attempt Summary</button>
+        <br><br>
+        <table id ="table" class="table table-striped" style= "display: none">
+          <tr>
+            <th>Attempt Number</th>
+            <th>Start Time</th>
+            <th>Stop Time</th>
+            <th>Score</th>
+          </tr>
+          <tbody id = "summaryTable">
+          </tbody>
+        </table>
+
+      </div>
+      <div class = "col-md-6" align = "center">
+        <button id = "AttResults" class="btn btn-info" onclick="attemptResults()">See All Attempts Results</button>
+        <br><br>
+        <div id="AttResultsText">
+          <p id="totalAtt"> </p>
+          <p id="attMin"> </p>
+          <p id="attMax"> </p>
+          <p id="attAvg"> </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+      var clicks = 0;
+      var cachedClick;
+      var secs = 4;
+      var delta;
+      var totalAttempts = 0;
+      var min = 99999;
+      var max = 0;
+      var avg;
+      var date1;
+      var date2;
+      var attemptsArray = [];
+      function createObject() {
+        var object = {
+          number: totalAttempts,
+          sTime: date1,
+          eTime: date2,
+          score: delta
+        }
+        attemptsArray.push(object);
+        console.log(attemptsArray);
+      }
+      function createTable() {
+        var table = document.getElementById("summaryTable");
+        var row = '<tr>' +
+                    '<td>'+ totalAttempts +'</td>' +
+                    '<td>'+ date1 +'</td>' +
+                    '<td>'+ date2 +'</td>' +
+                    '<td>'+ delta +'</td>' +
+                  '</tr>'
+        table.innerHTML += row;
+      }
+
+      function setSecs() {
+        secs = document.getElementById("setTime").innerText;
+        console.log(secs);
+      }
+
+    function buttonClick() {
+      clicks++;
+      if (clicks == 1) {
+        totalAttempts++
+        console.log("started")
+        date1 = new Date();
+        cachedClick = date1.getTime();
+        button.textContent = "Stop";
+        console.log(date1);
+
+      } else if (clicks == 2) {
+        console.log("stopped")
+        date2 = new Date()
+        console.log(date2);
+        var click2 = date2.getTime();
+        delta = click2 - cachedClick;
+        delta = delta / 1000;
+
+        if (delta > (secs+.5) || delta < (secs-.5))
+          document.getElementById("results").style.color = "red";
+        if (delta == secs)
+          document.getElementById("results").style.color = "green";
+        if ((delta >= (secs-.2) && (delta < secs)) || (delta <=(secs+.2) && (delta > secs)))
+          document.getElementById("results").style.color = "blue";
+        if ((delta >= (secs-.5)) && (delta < (secs-.2)) || ((delta <=(secs+.5)) && (delta >(secs+.2))))
+          document.getElementById("results").style.color = "orange";  //couldnt see the yellow
+
+        results.textContent = "You got " + (delta) + " seconds!";
+
+        createObject();
+        createTable();
+
+          if (delta > max) {
+            max = delta;
+          }
+          if (delta < min) {
+            min = delta;
+          }
+
+        button.textContent = "Start";
+
+        console.log("max = " + max);
+        console.log("min = " + min);
+        console.log("totalAttempts = " + totalAttempts);
+
+        totalAtt.textContent = "Total attempts = " + totalAttempts;
+        attMin.textContent = "Min = " + min;
+        attMax.textContent = "Max = " + max;
+
+        reset();
+      }
+    }
+    function reset() {
+      cachedClick = null;
+      clicks = 0;
+      console.log("reset");
+    }
+    function attemptSummary() {
+
+      var x = document.getElementById("table");
+      if (x.style.display === "none") {
+        x.style.display = "block";
+        AttSum.textContent = "Hide Attempt Summary";
+      } else {
+        x.style.display = "none";
+        AttSum.textContent = "See Attempt Summary";
+      }
+    }
+    function attemptResults() {
+        //honestly just gave up on the average
+      /*const onlyResults = JSON.parse(attemptsArray).filter({score});
+      const sum = onlyResults.reduce((total, current) => current + total, 0);
+      console.log(sum);*/
+      //console.log(average);
+      var x = document.getElementById("AttResultsText");
+      if (x.style.display === "none") {
+        x.style.display = "block";
+        AttResults.textContent = "Hide All Attempt Results";
+      } else {
+        x.style.display = "none";
+        AttResults.textContent = "See All Attempt Results";
+      }
+    }
+  </script>
+
+</body>
+</html>
